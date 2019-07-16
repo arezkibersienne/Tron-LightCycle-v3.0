@@ -3,18 +3,14 @@ package Model;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import javax.swing.JPanel;
-
 public class Cycle  {
 	
 	/**
-	 * 
-	 * @author Arezki Ibersienne
-	 * @category Jave 2D game
+	 * @author arezki ibersienne
+	 * @category Java 2D Game
 	 */
-	
 
-	private int xPos , yPos , sideLenght , direction , speed , spawnState, score; 
+	private int xPos , yPos , sideLenght , direction , speed , score; 
 	
 
 	private Color c; 
@@ -58,41 +54,83 @@ public class Cycle  {
 			speed = 0;
 			c = null;
 		}
+		
+	/*
+	 * constructor with parameters 
+	 */
+		public Cycle(int xPos , int yPos , int direction , Color c) {
+			this.xPos = xPos;
+			this.yPos = yPos;
+			this.direction = direction;
+			this.c = c;
+			sideLenght = 4;
+			speed = 4;
+		}
+	/*
+	 * method that draws the cycle on the screen 
+	 */
+		public void draw(Graphics g) {
+			g.setColor(c);
+			g.fillRect(xPos, yPos, sideLenght, sideLenght);
 			
-		/*
-		 * constructor with parameters 
-		 */
-			public Cycle(int xPos , int yPos , int direction , Color c) {
-				this.xPos = xPos;
-				this.yPos = yPos;
-				this.direction = direction;
-				this.c = c;
-				sideLenght = 4;
-				speed = 4;
+			
+		}
+	/*
+	 * this method is used to update xPos and yPos based on direction	
+	 */
+		public void updatePos() {
+			if(direction == 0) {
+				xPos += speed;
+			}else if(direction == 90) {
+				yPos -= speed;
+			}else if(direction == 180) {
+				xPos -= speed;
+			}else if(direction == 270) {
+				yPos += speed;
 			}
+				
+			
+		}
+		
+	/*
+	 * this method return true if the cycle collied with a collored pixel
+	 */
+		
+		public boolean willDie() {
+			
+			if(direction == 180 && !TronGame.isWhite(xPos - (sideLenght -5), yPos)) 
+				return true;
+			if(direction == 90 && !TronGame.isWhite(xPos, yPos - (sideLenght - 5)))
+				return true;
+			if(direction == 0 && !TronGame.isWhite(xPos + (sideLenght + 3), yPos))
+				return true;
+			if(direction == 270 && !TronGame.isWhite(xPos, yPos + (sideLenght)))
+				return true;
+			if(xPos >= 600 || xPos <= 0 || yPos >= 580 || yPos <= 150)
+				return true;
+			else 
+				return false;
+		}
+	
+
 		/*
-		 * method that draws the cycle on the screen 
-		 */
-			public void draw(Graphics g) {
-					g.setColor(c);
-					g.fillRect(xPos, yPos, sideLenght, sideLenght);
-					
-					
-				}
-		/*
-		* this method is used to update xPos and yPos based on direction	
-		*/
-			public void updatePos() {
-				if(direction == 0) {
-					xPos += speed;
-				}else if(direction == 90) {
-					yPos -= speed;
-				}else if(direction == 180) {
-					xPos -= speed;
-				}else if(direction == 270) {
-					yPos += speed;
-				}
-						
-					
-				}
+	 * Getters and setters
+	 */
+		public int getDirection() {
+			return direction;
+		}
+
+		public void setDirection(int direction) {
+			this.direction = direction;
+		}
+
+		public int getScore() {
+			return score;
+		}
+
+		public void setScore(int score) {
+			this.score = score;
+		}
+
+		
 }
