@@ -6,6 +6,13 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 public class Cycle  {
+	
+	/**
+	 * 
+	 * @author Arezki Ibersienne
+	 * @category Jave 2D game
+	 */
+	
 
 	private int xPos , yPos , sideLenght , direction , speed , spawnState, score; 
 	
@@ -63,5 +70,29 @@ public class Cycle  {
 				sideLenght = 4;
 				speed = 4;
 			}
-	
+		/*
+		 * method that draws the cycle on the screen 
+		 */
+			public void draw(Graphics g) {
+					g.setColor(c);
+					g.fillRect(xPos, yPos, sideLenght, sideLenght);
+					
+					
+				}
+		/*
+		* this method is used to update xPos and yPos based on direction	
+		*/
+			public void updatePos() {
+				if(direction == 0) {
+					xPos += speed;
+				}else if(direction == 90) {
+					yPos -= speed;
+				}else if(direction == 180) {
+					xPos -= speed;
+				}else if(direction == 270) {
+					yPos += speed;
+				}
+						
+					
+				}
 }
