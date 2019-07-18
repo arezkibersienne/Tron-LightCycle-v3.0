@@ -3,7 +3,6 @@ package Model;
 import java.applet.Applet;
 import java.applet.AudioClip;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -14,11 +13,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import Controller.JDBC;
+import View.Frame;
 
 public class TronGame extends JPanel implements KeyListener, ActionListener {
 	/**
@@ -32,14 +31,21 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	 */
 
 	  // declare all instance variables 
-	  private boolean pl = false , pl2 = false;
+	  private float twoDig;
+	  private JDBC db = new JDBC();
+	  private float currentTime ;
+	  private String timeScreen;
+	  private boolean pl = false , pl2 = false , st = false;
+	  private static int width = 600;
+	  private static int height = 600;
 	  private String scr , scr2;
 	  private final Font myFont = new Font("Courier New", 1, 40);
 	  private final Font myFont2 = new Font("Courier New", 1, 20);
 	  private AudioClip sound1;
 	  private Cycle player = new Cycle();
 	  private Cycle player2 = new Cycle();
-	  private int spawn = 0; //used for spawn
+	  private int spawn = 0; //used for spawn direction
+	  private int xRan , yRan , xpRan , ypRan;
 	  private int frameCount;// used for the score
 	  private static String title = "Tron : LightCycle v3.0";
 	  private Timer timer;// handles animation
@@ -52,21 +58,10 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	   * main() is needed to initialize the window.<br>
 	   */
 	  public static void main(String[] args) {
-	    JFrame window = new JFrame(title);
-	    window.setSize(new Dimension(600 , 600));
-	    //window.setBounds(0, 0, 600, 400);// window size
- 	    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    window.setResizable(false);
-	    window.setLocationRelativeTo(null);
-
 	    TronGame game = new TronGame();
-	    window.getContentPane().add(game);
-	    window.setBackground(Color.BLACK);
-	    window.setVisible(true);
-	    window.addKeyListener(game);
-	    game.init();
-	    JDBC db = new JDBC();
-	    db.addInDB("bab", 1.6, url, user, pwd);
+	    Frame window = new Frame(title , width , height , game);
+	    
+	  
 	  }
 
 	  /**
@@ -88,11 +83,23 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	    frameCount = 0;
 	    offScreenGraphics.clearRect(0, 0, 600, 600);
 	    repaint();
-	    player = new Cycle(100 , 230 , spawn ,Color.cyan );
-	    player2 = new Cycle(400 , 230 , spawn ,Color.yellow);
+	    xRan = (int)(Math.random()*((600-0)+1))+0;
+	    yRan = (int)(Math.random()*((600-150)+1))+150;
+	    xpRan = (int)(Math.random()*((600-0)+1))+0;
+	    ypRan = (int)(Math.random()*((600-150)+1))+150;
+	    if(xRan == xpRan && yRan == yRan) {
+	    	xRan = (int)(Math.random()*((600-0)+1))+0;
+		    yRan = (int)(Math.random()*((600-150)+1))+150;
+		    xpRan = (int)(Math.random()*((600-0)+1))+0;
+		    ypRan = (int)(Math.random()*((600-150)+1))+150;
+	    }else {
+	    	player = new Cycle(xRan , yRan , spawn ,Color.cyan );
+		    player2 = new Cycle(xpRan , ypRan , spawn ,Color.yellow);
+	    }
 	    
-	  }
-	  
+	    
+	    	
+	    }
 	  
 	  /**
 	   * Called automatically after a repaint request<br>
@@ -103,6 +110,11 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	    g.setColor(Color.lightGray);
 	    g.fillRect(0, 0, 600, 150);
 	    g.setFont(myFont);
+	    timeScreen = String.valueOf(twoDig);
+	    g.setColor(Color.white);
+	    g.drawString("TIME", 250, 50);
+	    if(st)
+	    	g.drawString(timeScreen, 250, 100);
 	    if(pl) {
 	    	g.setColor(Color.lightGray);
 	    	g.fillRoundRect(100, 300, 400, 150, 10, 10);
@@ -112,6 +124,8 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	    	g.drawString("Score : ", 230 , 420);
 	    	scr2 = String.valueOf(player2.getScore());
 	    	g.drawString(scr2, 330, 420);
+	    	if(!timer.isRunning())
+	    		db.addInDB("Player 2", twoDig, url, user, pwd);
 	    }
 	    if(pl2) {
 	    	g.setColor(Color.lightGray);
@@ -122,6 +136,8 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	    	g.drawString("Score : ", 230 , 420);
 	    	scr = String.valueOf(player.getScore());
 	    	g.drawString(scr, 330, 420);
+	    	if(!timer.isRunning())
+	    		db.addInDB("Player 1", twoDig, url, user, pwd);
 	    }
 	    }
 
@@ -129,12 +145,14 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	   * renders all objects to Graphics g
 	   */
 	  public void draw(Graphics2D g) {
+		  
 	    g.setColor(Color.BLACK);
-
-	    
 	    // render all game objects here
-	    player.draw(g);
-	    player2.draw(g);
+	    if(st) {
+	    	player.draw(g);
+		    player2.draw(g);
+	    }
+	    
 		  }
 
 	  /**
@@ -142,20 +160,19 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	   * this is where all the game fields will be updated
 	   */
 	  public void actionPerformed(ActionEvent e) {
-		 
-	    // update all game Objects here
+		// update all game Objects here
 		player.updatePos();
 		player2.updatePos();
 	    frameCount++;// update the frameCount
+	    currentTime += 0.0215;
 	    repaint();// needed to refresh the animation
 	    //keeping score
-	    
 	    player.setScore(frameCount);
 	    player2.setScore(frameCount);
-
 	    //Stop timer when player is dead
 	  	    if(player.willDie()) 
-	    {	timer.stop();
+	    {
+	  	    timer.stop();
 	    	pl = true;
 	    }else {
 	    	pl = false;
@@ -167,8 +184,9 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	    }else {
 	    	pl2 = false;
 	    }
-	    
-	   }
+	    twoDig = (float) (Math.round(currentTime*100) / 100.0);
+	    System.out.println(twoDig);
+	  }
 
 	  /**
 	   * handles any key pressed events and updates the Cycle's direction by setting
@@ -205,12 +223,13 @@ public class TronGame extends JPanel implements KeyListener, ActionListener {
 	  public void keyReleased(KeyEvent e) {
 	    int keyCode = e.getKeyCode();
 	    if (keyCode == KeyEvent.VK_P) {
-	      // start the game .. if the game has not currently running
-	    	
+	      
 	      if (!timer.isRunning()) {
+	    	currentTime = 0;
 	        timer.start();
 	        initRound();
 	        sound1.play();
+	        st = true;
 	      }
 	    } else if (keyCode == KeyEvent.VK_ESCAPE) {
 	      // kill game process... close the window

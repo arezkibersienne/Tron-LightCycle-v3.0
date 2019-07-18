@@ -1,14 +1,11 @@
 package Controller;
 
-import java.sql.*;
-
-import com.mysql.jdbc.Statement;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 public class JDBC {
 	
-	private String url;	//Url for the datebase
-	private String user; //Database user 
-	private String pwd; //Database password
-	private String query; //Sql query
 	Connection con = null; //Instance of Connection class
    public JDBC() {
       }
@@ -44,7 +41,7 @@ public class JDBC {
 	      }
    }
    
-   public void addInDB(String player , Double time ,String url , String user , String pwd) {
+   public void addInDB(String player , float time ,String url , String user , String pwd) {
 	   try {
 	    	  //1. get connection to the database
 	         con = DriverManager.getConnection(url, user, pwd);
@@ -54,7 +51,7 @@ public class JDBC {
 	         mySt = con.prepareCall("{call addPlayer(? , ?)}");
 	         //3. set the parameters 
 	         mySt.setString(1 , player);
-	         mySt.setDouble(2, time);
+	         mySt.setFloat(2, time);
 	         //4. excute the procedure
 	         mySt.execute();
 	         System.out.println("Data added successfully to MySQL database");
